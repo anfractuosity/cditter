@@ -6,6 +6,7 @@ from picamera import PiCamera
 import time
 import cv2
 import numpy as np 
+
 # initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
 camera.resolution = (640, 480)
@@ -16,15 +17,10 @@ rawCapture = PiRGBArray(camera, size=(640, 480))
 time.sleep(0.1)
  
 # capture frames from the camera
-old = None
-
-
 iopen = cv2.imread('open.jpg',0)
 iclosed = cv2.imread('closed.jpg',0)
 
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-    # grab the raw NumPy array representing the image, then initialize the timestamp
-    # and occupied/unoccupied text
     image = frame.array
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -34,13 +30,6 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         else:
             print("closed")
 
-    
     old = image
     #cv2.imwrite("test.jpg",gray)
-    # show the frame
-    #cv2.imshow("Frame", image)
-    #key = cv2.waitKey(1) & 0xFF
     rawCapture.truncate(0)
-    #if key == ord("q"):
-    #    break
-
