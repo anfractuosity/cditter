@@ -1,6 +1,4 @@
 #!/usr/bin/python
-
-# import the necessary packages
 import math
 from picamera.array import PiRGBArray
 from picamera import PiCamera
@@ -35,9 +33,7 @@ def emit(str):
 preamble = emit("AZ")
 
 def process(x):
-    print(x)
     m = [sum(y) / len(y) for y in zip(*x)][1]
-    print("Mean",m)
 
     for i in range(0,len(x)):
         v1=x[i:len(x)]
@@ -48,10 +44,8 @@ def process(x):
                 new.append(v[0])
             else:
                 new.append(v[0])
-        print(new)
         if new[0:len(preamble)] == preamble:
-            print("found")
-            print(tobytes(mancdec(new)))
+            print("Data: ",tobytes(mancdec(new)))
             break
 def binary(arr):
     m = 0
@@ -137,11 +131,7 @@ trainv = []
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     image = frame.array
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    #gray = cv2.blur(gray,(15,15))
-
     gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
-    #gray = cv2.blur(gray,(2,2))
-    #gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
 
     if not old == None and trained == False:
         count = 0
@@ -156,18 +146,12 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
             count += 1
         
-        print("simv",simv)
         if simv > 2500:
             imgl.append([gray,1])
             simid = len(imgl)-1
         else:
             imgl[simid][1]+=1
             imgl[simid][0] = gray
-
-        """
-        bits.append(simid)
-        print(extract(bits))
-        """
 
         trainv = []
         for i in range(0,len(imgl)):
@@ -177,6 +161,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 break
 
         if len(trainv) == 2:
+            print("Trained...")
             trained = True        
      
     elif trained:
@@ -192,9 +177,10 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
         trainv[simid][0] = gray
         trainv[simid][1] += 1
+        print(chr(27) + "[2J")
+        print("Current bit: ",simid)
 
         bits.append(simid)
-        print(bits)
         d = extract(bits)
         if len(d) > 8:
             process(d)
@@ -202,21 +188,4 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         imgl.append([gray,1])
 
     old = image        
-    """
-    if not iopen == None and not iclosed == None:
-        if np.sqrt(np.sum(np.square(np.subtract(gray,iopen)))) < np.sqrt(np.sum(np.square(np.subtract(gray,iclosed)))):
-            bits.append(1)
-            #print("open")
-        else:
-            bits.append(0)
-            #print("closed")
-            
-    print("bits",extract(bits))
-    """
-    if not trained:
-        co = 0 
-        for i in imgl:
-            print("Img",co,": ",i[1])
-            co += 1
-    #cv2.imwrite("test.png",gray)
     rawCapture.truncate(0)
