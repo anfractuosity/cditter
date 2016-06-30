@@ -46,7 +46,7 @@ def process(x):
                 new.append(v[0])
         if new[0:len(preamble)] == preamble:
             mdec = mancdec(new)
-            print("Data: ",tobytes(mdec[0:len(mdec) - (len(mdec) % 16)]))
+            print("Data: ",tobytes(mdec[0:len(mdec) - (len(mdec) % 8)]))
             break
 def binary(arr):
     m = 0
@@ -82,6 +82,7 @@ time.sleep(0.1)
  
 bits = []
 
+# from http://www.pyimagesearch.com/2014/09/15/python-compare-two-images/
 def mse(imageA, imageB):
     # the 'Mean Squared Error' between the two images is the
     # sum of the squared difference between the two images;
