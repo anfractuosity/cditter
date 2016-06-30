@@ -45,7 +45,8 @@ def process(x):
             else:
                 new.append(v[0])
         if new[0:len(preamble)] == preamble:
-            print("Data: ",tobytes(mancdec(new)))
+            mdec = mancdec(new)
+            print("Data: ",tobytes(mdec[0:len(mdec) - (len(mdec) % 16)]))
             break
 def binary(arr):
     m = 0
@@ -79,10 +80,6 @@ rawCapture = PiRGBArray(camera, size=camera.resolution)
 # allow the camera to warmup
 time.sleep(0.1)
  
-# capture frames from the camera
-iopen = cv2.imread('open.jpg',0)
-iclosed = cv2.imread('closed.jpg',0)
-
 bits = []
 
 def mse(imageA, imageB):
@@ -134,6 +131,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     gray = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
 
     if not old == None and trained == False:
+        #print(chr(27) + "[2J")
+        print("Training...")
         count = 0
         simid = -1
         simv = float("inf")
@@ -145,8 +144,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 simv = s
 
             count += 1
-        
-        if simv > 2500:
+        print("Similarity: ",simv)
+        if simv > 2600:
             imgl.append([gray,1])
             simid = len(imgl)-1
         else:
